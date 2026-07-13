@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>å°æ èçæ¤</title>
+<style>
+:root {
+  --pink: #FFB6C1;
+  --light-pink: #FFF0F3;
+  --blue: #87CEEB;
+  --light-blue: #E8F4FD;
+  --yellow: #FFF3CD;
+  --green: #7BC67E;
+  --red: #FF6B6B;
+  --text: #4A4A4A;
+  --text-light: #888;
+  --bg: #FDF6F0;
+  --card-bg: #FFFFFF;
+  --radius: 16px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg); color: var(--text); line-height:1.6;
+  min-height:100vh; -webkit-tap-highlight-color:transparent;
+}
+.app { max-width:480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; }
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #7BC67E, #87CEEB);
+  color:#fff; padding:16px 20px; text-align:center;
+  font-size:20px; font-weight:700; letter-spacing:1px;
+  position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+.header .subtitle { font-size:12px; opacity:0.85; font-weight:400; margin-top:2px; }
+
+/* Tabs */
+.tabs {
+  display:flex; background:#fff; border-bottom:1px solid #eee;
+  position:sticky; top:64px; z-index:99;
+}
+.tab {
+  flex:1; text-align:center; padding:12px 4px; font-size:13px; cursor:pointer;
+  color:var(--text-light); border-bottom:3px solid transparent; transition:all 0.2s;
+  font-weight:500;
+}
+.tab.active { color:var(--green); border-bottom-color:var(--green); font-weight:700; }
+
+/* Content */
+.content { flex:1; padding:16px; overflow-y:auto; }
+.page { display:none; }
+.page.active { display:block; }
+
+/* Cards */
+.card {
+  background:var(--card-bg); border-radius:var(--radius); padding:20px;
+  margin-bottom:16px; box-shadow:var(--shadow);
+}
+.card-title { font-size:17px; font-weight:700; margin-bottom:12px; color:var(--text); }
+.card-subtitle { font-size:13px; color:var(--text-light); margin-bottom:8px; }
+
+/* Form */
+.form-group { margin-bottom:14px; }
+.form-group label { display:block; font-size:14px; font-weight:600; margin-bottom:4px; color:var(--text); }
+.form-group input {
+  width:100%; padding:12px 14px; border:2px solid #e8e8e8; border-radius:12px;
+  font-size:16px; outline:none; transition:border 0.2s; background:#fafafa;
+}
+.form-group input:focus { border-color:var(--green); background:#fff; }
+.btn {
+  display:inline-block; padding:12px 28px; border:none; border-radius:25px;
+  font-size:16px; font-weight:700; cursor:pointer; transition:all 0.2s; text-align:center;
+}
+.btn-primary { background:var(--green); color:#fff; width:100%; }
+.btn-primary:hover { background:#6ab56e; }
+.btn-outline { background:transparent; border:2px solid var(--green); color:var(--green); }
+.btn-small { padding:6px 16px; font-size:13px; border-radius:20px; }
+.btn-danger { background:var(--red); color:#fff; }
+.btn-warning { background:#FFA726; color:#fff; }
+
+/* Disease Cards */
+.disease-grid { display:flex; flex-direction:column; gap:12px; }
+.disease-card {
+  background:var(--card-bg); border-radius:var(--radius); padding:16px;
+  box-shadow:var(--shadow); cursor:pointer; transition:all 0.2s;
+  border:2px solid transparent; position:relative; overflow:hidden;
+}
+.disease-card:hover { border-color:var(--green); transform:translateY(-1px); }
+.disease-card.selected { border-color:var(--green); background:var(--light-blue); }
+.disease-card .disease-icon { font-size:32px; margin-bottom:6px; }
+.disease-card .disease-name { font-size:17px; font-weight:700; margin-bottom:4px; }
+.disease-card .disease-desc { font-size:12px; color:var(--text-light); margin-bottom:8px; }
+.disease-card .disease-tags { display:flex; flex-wrap:wrap; gap:4px; }
+.tag {
+  font-size:10px; padding:2px 8px; border-radius:10px;
+  background:var(--light-pink); color:#d4667e;
+}
+
+/* Caring Page */
+.progress-ring-wrap { text-align:center; margin:20px 0; position:relative; }
+.progress-ring-wrap svg { width:180px; height:180px; }
+.progress-ring-wrap .ring-text {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  text-align:center;
+}
+.ring-text .time { font-size:36px; font-weight:800; color:var(--text); }
+.ring-text .label { font-size:13px; color:var(--text-light); }
+
+.caring-header { text-align:center; margin-bottom:8px; }
+.caring-header .disease-badge {
+  display:inline-block; background:var(--green); color:#fff;
+  padding:4px 16px; border-radius:20px; font-size:14px; font-weight:600;
+}
+.caring-header .duration { font-size:13px; color:var(--text-light); margin-top:4px; }
+
+.reminder-list { margin-top:8px; }
+.reminder-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 14px; background:var(--card-bg); border-radius:12px;
+  margin-bottom:8px; box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.reminder-item .ri-left { display:flex; align-items:center; gap:10px; }
+.reminder-item .ri-icon { font-size:22px; }
+.reminder-item .ri-name { font-weight:600; font-size:14px; }
+.reminder-item .ri-time { font-size:12px; color:var(--text-light); }
+.reminder-item .ri-count { font-size:11px; color:var(--green); font-weight:600; }
+.reminder-item .ri-actions { display:flex; gap:6px; }
+.reminder-item.urgent { background:#FFF0F0; border:1px solid #FFB6B6; animation:pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.7;} }
+
+.stats-row { display:flex; gap:10px; margin-top:12px; }
+.stat-card {
+  flex:1; text-align:center; background:var(--card-bg);
+  border-radius:12px; padding:12px 8px; box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.stat-card .stat-num { font-size:28px; font-weight:800; color:var(--green); }
+.stat-card .stat-label { font-size:11px; color:var(--text-light); }
+
+/* Records */
+.record-item {
+  background:var(--card-bg); border-radius:var(--radius); padding:16px;
+  margin-bottom:12px; box-shadow:var(--shadow);
+}
+.record-item .rec-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.record-item .rec-disease { font-weight:700; font-size:15px; }
+.record-item .rec-date { font-size:12px; color:var(--text-light); }
+.record-item .rec-stats { display:flex; gap:16px; font-size:13px; color:var(--text-light); }
+.record-item .rec-duration { font-size:13px; color:var(--green); font-weight:600; }
+
+/* Temperature Table */
+.temp-table { width:100%; border-collapse:collapse; font-size:13px; }
+.temp-table th, .temp-table td {
+  padding:10px 12px; text-align:center; border-bottom:1px solid #eee;
+}
+.temp-table th { background:var(--light-blue); font-weight:600; }
+.temp-table tr:hover { background:#f9f9f9; }
+.temp-high { color:var(--red); font-weight:700; }
+
+/* Toast / Modal */
+.toast {
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:rgba(0,0,0,0.8); color:#fff; padding:16px 28px;
+  border-radius:12px; font-size:15px; z-index:999;
+  animation:toastIn 0.3s ease;
+}
+@keyframes toastIn { from{opacity:0;transform:translate(-50%,-50%) scale(0.8);} to{opacity:1;transform:translate(-50%,-50%) scale(1);} }
+
+.modal-overlay {
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(0,0,0,0.5); z-index:200; display:flex;
+  align-items:center; justify-content:center;
+}
+.modal {
+  background:#fff; border-radius:var(--radius); padding:24px;
+  max-width:360px; width:90%; text-align:center;
+}
+.modal h3 { margin-bottom:12px; }
+.modal .modal-actions { display:flex; gap:10px; margin-top:16px; }
+.modal .modal-actions .btn { flex:1; }
+
+.empty-state { text-align:center; padding:40px 20px; color:var(--text-light); }
+.empty-state .empty-icon { font-size:48px; margin-bottom:12px; }
+
+/* Temperature input inline */
+.temp-input-row { display:flex; gap:8px; align-items:center; margin-top:12px; }
+.temp-input-row input {
+  flex:1; padding:10px; border:2px solid #e8e8e8; border-radius:10px; font-size:16px;
+}
+
+@media (max-width: 380px) {
+  .tab { font-size:12px; padding:10px 2px; }
+  .reminder-item { padding:10px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    å°æ èçæ¤
+    <div class="subtitle">å¿ç«¥ç¾ççæ¤æºè½æé</div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-tab="profile">å®å®æ¡£æ¡</div>
+    <div class="tab" data-tab="disease">éæ©ç¾ç</div>
+    <div class="tab" data-tab="caring">çæ¤ä¸­</div>
+    <div class="tab" data-tab="temp">ä½æ¸©è®°å½</div>
+    <div class="tab" data-tab="records">çæ¤è®°å½</div>
+  </div>
+  <div class="content">
+    <!-- å¿ç«¥æ¡£æ¡ -->
+    <div class="page active" id="page-profile">
+      <div class="card">
+        <div class="card-title">å®å®æ¡£æ¡</div>
+        <div class="card-subtitle">å®åå®å®ä¿¡æ¯ï¼è·åæ´ç²¾åççæ¤æé</div>
+        <div class="form-group">
+          <label>å®å®å§å/æµç§°</label>
+          <input type="text" id="childName" placeholder="è¯·è¾å¥å®å®å§å" maxlength="20">
+        </div>
+        <div class="form-group">
+          <label>å¹´é¾ï¼å²ï¼</label>
+          <input type="number" id="childAge" placeholder="å¦ 3" min="0" max="12" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>ä½éï¼kgï¼</label>
+          <input type="number" id="childWeight" placeholder="å¦ 15" min="1" max="100" step="0.1">
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()">ä¿å­æ¡£æ¡</button>
+      </div>
+    </div>
+
+    <!-- ç¾çéæ© -->
+    <div class="page" id="page-disease">
+      <div class="card">
+        <div class="card-title">éæ©ç¾ç</div>
+        <div class="card-subtitle">éæ©å®å®å½åçç¶ï¼ç³»ç»å°èªå¨å è½½å¯¹åºççæ¤æéæ¹æ¡</div>
+        <div class="disease-grid" id="diseaseGrid"></div>
+      </div>
+    </div>
+
+    <!-- çæ¤ä¸­ -->
+    <div class="page" id="page-caring">
+      <div id="caringNotStarted" class="empty-state">
+        <div class="empty-icon">ð±</div>
+        <p>å°æªå¼å§çæ¤</p>
+        <p style="font-size:13px;margin-top:4px;">è¯·åå¨ãéæ©ç¾çãé¡µé¢éæ©ç¾çå¼å§çæ¤</p>
+        <button class="btn btn-primary" style="margin-top:16px;width:auto;" onclick="switchTab('disease')">å»éæ©ç¾ç</button>
+      </div>
+      <div id="caringActive" style="display:none;">
+        <div class="caring-header">
+          <div class="disease-badge" id="caringDiseaseName"></div>
+          <div class="duration">å·²çæ¤ <span id="caringDuration">00:00:00</span></div>
+        </div>
+        <div class="progress-ring-wrap" id="nextReminderRing"></div>
+        <div class="reminder-list" id="reminderList"></div>
+        <div class="stats-row" id="todayStats"></div>
+        <div style="text-align:center;margin-top:16px;">
+          <button class="btn btn-danger btn-small" onclick="endCaring()">ç»ææ¬æ¬¡çæ¤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ä½æ¸©è®°å½ -->
+    <div class="page" id="page-temp">
+      <div class="card">
+        <div class="card-title">ä½æ¸©è®°å½</div>
+        <div class="temp-input-row">
+          <input type="number" id="tempInput" placeholder="è¾å¥ä½æ¸©ï¼âï¼" step="0.1" min="35" max="42">
+          <button class="btn btn-primary btn-small" onclick="recordTemp()" style="width:auto;">è®°å½</button>
+        </div>
+      </div>
+      <div class="card" id="tempTableCard">
+        <table class="temp-table" id="tempTable"></table>
+      </div>
+    </div>
+
+    <!-- çæ¤è®°å½ -->
+    <div class="page" id="page-records">
+      <div class="card">
+        <div class="card-title">çæ¤è®°å½</div>
+        <div id="recordsList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== ç¾çåº ====================
+const DISEASES = [
+  {
+    id:'hfmd', name:'æè¶³å£ç', icon:'ð¦ ',
+    desc:'ç±è éçæ¯å¼èµ·ï¼å¸¸è§äº5å²ä»¥ä¸å¿ç«¥ï¼è¡¨ç°ä¸ºåç­ãå£èç±ç¹ãæè¶³ç®ç¹ã',
+    reminders:[
+      { id:'water', label:'åæ°´', interval:30*60 },
+      { id:'toilet', label:'å¦å', interval:2*3600 },
+      { id:'temp', label:'éä½æ¸©', interval:4*3600 },
+      { id:'mouth', label:'å£èæ¤ç', interval:3*3600 },
+      { id:'rash', label:'ç®ç¹è§å¯', interval:12*3600 },
+    ]
+  },
+  {
+    id:'flu', name:'æµæ/æå', icon:'ð¤§',
+    desc:'ç±æµæçæ¯å¼èµ·ï¼çç¶åæ¬é«ç­ãå³å½ãå½çãèèé¸çç­ã',
+    reminders:[
+      { id:'water', label:'åæ°´', interval:1*3600 },
+      { id:'toilet', label:'å¦å', interval:3*3600 },
+      { id:'temp', label:'éä½æ¸©', interval:4*3600 },
+      { id:'med', label:'åè¯æé', interval:8*3600 },
+      { id:'rest', label:'ä¼æ¯è§å¯', interval:2*3600 },
+    ]
+  },
+  {
+    id:'diarrhea', name:'è¹æ³»', icon:'ð§',
+    desc:'æä¾¿æ¬¡æ°å¢å¤ãå¤§ä¾¿ç¨èï¼ééç¹é²è±æ°´ï¼æ³¨æé¥®é£å«çã',
+    reminders:[
+      { id:'water', label:'åæ°´ï¼é²è±æ°´ï¼', interval:20*60 },
+      { id:'toilet', label:'å¦åè®°å½', interval:2*3600 },
+      { id:'temp', label:'éä½æ¸©', interval:6*3600 },
+      { id:'ors', label:'è¡¥æ¶²ç', interval:4*3600 },
+      { id:'diet', label:'é¥®é£ç¦å¿æé', interval:6*3600 },
+    ]
+  },
+  {
+    id:'herpangina', name:'å½å³¡ç', icon:'ð£',
+    desc:'ç±ç¹æ§å½å³¡çï¼è¡¨ç°ä¸ºçªåé«ç­ãå½çãå½é¨ç±ç¹ï¼è¿é£å°é¾ã',
+    reminders:[
+      { id:'water', label:'åæ°´', interval:30*60 },
+      { id:'toilet', label:'å¦å', interval:2*3600 },
+      { id:'temp', label:'éä½æ¸©', interval:4*3600 },
+      { id:'gargle', label:'æ¼±å£', interval:2*3600 },
+      { id:'coldfood', label:'å·æµè´¨é¥®é£', interval:4*3600 },
+    ]
+  },
+  {
+    id:'exanthem', name:'å¹¼å¿æ¥ç¹', icon:'ð¸',
+    desc:'å¸¸è§äº6ä¸ªæ~2å²å©´å¹¼å¿ï¼é«ç­3~5å¤©åç­éç¹åºã',
+    reminders:[
+      { id:'water', label:'åæ°´', interval:1*3600 },
+      { id:'toilet', label:'å¦å', interval:3*3600 },
+      { id:'temp', label:'éä½æ¸©', interval:3*3600 },
+      { id:'fevermed', label:'éç§è¯é´é', interval:6*3600 },
+      { id:'rash', label:'ç®ç¹è§å¯', interval:4*3600 },
+    ]
+  },
+  {
+    id:'pneumonia', name:'èºç', icon:'ð«',
+    desc:'èºé¨æææ§ç¾çï¼è¡¨ç°ä¸ºåç­ãå³å½ãæ°ä¿ï¼éè¦å¯åè§å¯ã',
+    reminders:[
+      { id:'water', label:'åæ°´', interval:40*60 },
+      { id:'toilet', label:'å¦å', interval:2*3600 },
+      { id:'temp', label:'éä½æ¸©', interval:3*3600 },
+      { id:'nebulize', label:'é¾å', interval:8*3600 },
+      { id:'patback', label:'æèæç°', interval:4*3600 },
+    ]
+  },
+  {
+    id:'constipation', name:'ä¾¿ç§', icon:'ð',
+    desc:'æä¾¿å°é¾ãå¤§ä¾¿å¹²ç»ï¼è°æ´é¥®é£ç»æç»åè¹é¨ææ©å¸®å©æä¾¿ã',
+    reminders:[
+      { id:'water', label:'åæ°´', interval:1*3600 },
+      { id:'toilet', label:'å°è¯åä¾¿', interval:2*3600 },
+      { id:'massage', label:'è¹é¨ææ©', interval:4*3600 },
+      { id:'fiber', label:'é«çº¤ç»´é¥®é£', interval:6*3600 },
+    ]
+  },
+];
+
+// ==================== å¨å±ç¶æ ====================
+const STORAGE_KEY = 'treelittle_care_data';
+let state = {
+  profile: { name:'', age:'', weight:'' },
+  activeDisease: null,
+  activeReminders: [],
+  activeStartTime: null,
+  todayStats: { water:0, toilet:0, temp:0 },
+  statCounters: {}, // { reminderId: count }
+  records: [],
+  temperatureLog: [],
+};
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      state = { ...state, ...parsed };
+      if (!state.statCounters) state.statCounters = {};
+      if (!state.temperatureLog) state.temperatureLog = [];
+    }
+  } catch(e) { console.warn('å è½½æ°æ®å¤±è´¥', e); }
+}
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch(e) { console.warn('ä¿å­æ°æ®å¤±è´¥', e); }
+}
+
+// ==================== æç¤ºé³ ====================
+function playBeep(freq, dur, type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = freq || 800;
+    osc.type = type || 'sine';
+    gain.gain.value = 0.25;
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (dur||0.4));
+    osc.start(); osc.stop(ctx.currentTime + (dur||0.4));
+    setTimeout(() => { try { ctx.close(); } catch(e){} }, (dur||0.4)*1000+200);
+  } catch(e) {}
+}
+function playAlertSound() {
+  playBeep(880, 0.15, 'square');
+  setTimeout(() => playBeep(1100, 0.2, 'square'), 200);
+  setTimeout(() => playBeep(1320, 0.3, 'square'), 450);
+}
+
+// ==================== UI å·¥å· ====================
+function showToast(msg, duration) {
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.remove(); }, duration || 2000);
+}
+
+function formatDuration(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function formatInterval(seconds) {
+  if (seconds < 60) return seconds + 'ç§';
+  if (seconds < 3600) return Math.round(seconds/60) + 'åé';
+  return Math.round(seconds/3600) + 'å°æ¶';
+}
+
+// ==================== Tab åæ¢ ====================
+function switchTab(tabName) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const tabEl = document.querySelector(`[data-tab="${tabName}"]`);
+  if (tabEl) tabEl.classList.add('active');
+  const pageEl = document.getElementById('page-' + tabName);
+  if (pageEl) pageEl.classList.add('active');
+  if (tabName === 'caring') renderCaring();
+  if (tabName === 'disease') renderDiseaseCards();
+  if (tabName === 'records') renderRecords();
+  if (tabName === 'temp') renderTempTable();
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+// ==================== å¿ç«¥æ¡£æ¡ ====================
+function saveProfile() {
+  const name = document.getElementById('childName').value.trim();
+  const age = document.getElementById('childAge').value;
+  const weight = document.getElementById('childWeight').value;
+  if (!name) { showToast('è¯·è¾å¥å®å®å§å'); return; }
+  state.profile = { name, age, weight };
+  saveState();
+  showToast('æ¡£æ¡ä¿å­æåï¼');
+}
+
+function loadProfileForm() {
+  document.getElementById('childName').value = state.profile.name || '';
+  document.getElementById('childAge').value = state.profile.age || '';
+  document.getElementById('childWeight').value = state.profile.weight || '';
+}
+
+// ==================== ç¾çå¡ç ====================
+function renderDiseaseCards() {
+  const grid = document.getElementById('diseaseGrid');
+  if (!grid) return;
+  grid.innerHTML = DISEASES.map(d => {
+    const isActive = state.activeDisease && state.activeDisease.id === d.id;
+    const tags = d.reminders.map(r => formatInterval(r.interval) + ' ' + r.label);
+    return `
+      <div class="disease-card ${isActive ? 'selected' : ''}" onclick="selectDisease('${d.id}')">
+        <div class="disease-icon">${d.icon}</div>
+        <div class="disease-name">${d.name}</div>
+        <div class="disease-desc">${d.desc}</div>
+        <div class="disease-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+        ${isActive ? '<div style="margin-top:6px;font-size:13px;color:var(--green);font-weight:700;">å½åçæ¤ä¸­</div>' : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function selectDisease(diseaseId) {
+  const disease = DISEASES.find(d => d.id === diseaseId);
+  if (!disease) return;
+  // If already caring for this disease, just switch tab
+  if (state.activeDisease && state.activeDisease.id === diseaseId) {
+    switchTab('caring');
+    return;
+  }
+  // If caring for another disease, ask
+  if (state.activeDisease && state.activeDisease.id !== diseaseId) {
+    if (!confirm(`å½åæ­£å¨çæ¤ã${state.activeDisease.name}ãï¼åæ¢ç¾çå°ç»æå½åçæ¤å¹¶ä¿å­è®°å½ï¼ç¡®å®åï¼`)) return;
+    endCaringSilent();
+  }
+  startCaring(disease);
+}
+
+function startCaring(disease) {
+  state.activeDisease = { id: disease.id, name: disease.name, icon: disease.icon };
+  state.activeReminders = disease.reminders.map(r => ({
+    ...r,
+    lastDone: Date.now(),
+    nextDue: Date.now() + r.interval * 1000,
+  }));
+  state.activeStartTime = Date.now();
+  state.todayStats = { water: 0, toilet: 0, temp: 0 };
+  state.statCounters = {};
+  disease.reminders.forEach(r => { state.statCounters[r.id] = 0; });
+  saveState();
+  renderDiseaseCards();
+  switchTab('caring');
+  showToast(`å·²å¼å§ã${disease.name}ãçæ¤`);
+}
+
+function endCaring() {
+  if (!state.activeDisease) return;
+  if (!confirm('ç¡®å®ç»ææ¬æ¬¡çæ¤åï¼ç»æåå°çææ¬æ¬¡çæ¤è®°å½ã')) return;
+  endCaringSilent();
+  switchTab('records');
+  showToast('å·²ç»æçæ¤ï¼è®°å½å·²ä¿å­');
+}
+
+function endCaringSilent() {
+  if (!state.activeDisease || !state.activeStartTime) return;
+  const duration = Math.floor((Date.now() - state.activeStartTime) / 1000);
+  state.records.unshift({
+    disease: state.activeDisease,
+    startTime: state.activeStartTime,
+    endTime: Date.now(),
+    duration: duration,
+    stats: { ...state.statCounters },
+    temperatureLog: [...state.temperatureLog],
+  });
+  state.activeDisease = null;
+  state.activeReminders = [];
+  state.activeStartTime = null;
+  state.todayStats = { water:0, toilet:0, temp:0 };
+  state.statCounters = {};
+  saveState();
+}
+
+// ==================== çæ¤ä¸­é¡µé¢ ====================
+let caringTimer = null;
+let ringAnimFrame = null;
+
+function renderCaring() {
+  if (!state.activeDisease) {
+    document.getElementById('caringNotStarted').style.display = 'block';
+    document.getElementById('caringActive').style.display = 'none';
+    return;
+  }
+  document.getElementById('caringNotStarted').style.display = 'none';
+  document.getElementById('caringActive').style.display = 'block';
+  document.getElementById('caringDiseaseName').textContent =
+    state.activeDisease.icon + ' ' + state.activeDisease.name;
+
+  updateCaringDisplay();
+  if (caringTimer) clearInterval(caringTimer);
+  caringTimer = setInterval(updateCaringDisplay, 1000);
+}
+
+function updateCaringDisplay() {
+  if (!state.activeDisease) { clearInterval(caringTimer); return; }
+  const now = Date.now();
+  const elapsed = Math.floor((now - state.activeStartTime) / 1000);
+  document.getElementById('caringDuration').textContent = formatDuration(elapsed);
+
+  // Find next reminder
+  let nextReminder = null;
+  let minDue = Infinity;
+  state.activeReminders.forEach(r => {
+    if (r.nextDue < minDue) { minDue = r.nextDue; nextReminder = r; }
+  });
+
+  // Render progress ring
+  if (nextReminder) {
+    const total = nextReminder.interval;
+    const elapsedInCycle = total - Math.max(0, Math.floor((nextReminder.nextDue - now) / 1000));
+    const remaining = Math.max(0, Math.floor((nextReminder.nextDue - now) / 1000));
+    const progress = Math.min(1, elapsedInCycle / total);
+    renderProgressRing(nextReminder.label, remaining, progress);
+  }
+
+  // Render reminder list
+  const listEl = document.getElementById('reminderList');
+  listEl.innerHTML = state.activeReminders.map(r => {
+    const rem = Math.max(0, Math.floor((r.nextDue - now) / 1000));
+    const isUrgent = rem <= 0;
+    const count = state.statCounters[r.id] || 0;
+    return `
+      <div class="reminder-item ${isUrgent ? 'urgent' : ''}">
+        <div class="ri-left">
+          <div class="ri-icon">${getReminderIcon(r.id)}</div>
+          <div>
+            <div class="ri-name">${r.label}</div>
+            <div class="ri-time">${isUrgent ? 'â ï¸ ç°å¨ï¼' : 'è¿å© ' + formatDuration(rem)}</div>
+          </div>
+        </div>
+        <div class="ri-count">å·²å®æ x${count}</div>
+        <div class="ri-actions">
+          <button class="btn btn-primary btn-small" onclick="markDone('${r.id}')">å·²å®æ</button>
+          <button class="btn btn-warning btn-small" onclick="snooze('${r.id}')">æ¨è¿5å</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Stats
+  const statsEl = document.getElementById('todayStats');
+  const wCount = state.statCounters['water'] || 0;
+  const tCount = state.statCounters['toilet'] || 0;
+  const tpCount = state.statCounters['temp'] || 0;
+  statsEl.innerHTML = `
+    <div class="stat-card"><div class="stat-num">${wCount}</div><div class="stat-label">åæ°´</div></div>
+    <div class="stat-card"><div class="stat-num">${tCount}</div><div class="stat-label">å¦å</div></div>
+    <div class="stat-card"><div class="stat-num">${tpCount}</div><div class="stat-label">ä½æ¸©</div></div>
+  `;
+}
+
+function getReminderIcon(reminderId) {
+  const map = {
+    water:'ð§', toilet:'ð½', temp:'ð¡ï¸', mouth:'ð¦·', rash:'ð',
+    med:'ð', rest:'ð´', ors:'ð§', diet:'ð', gargle:'ð«§',
+    coldfood:'ð¦', fevermed:'ð', nebulize:'ð¨', patback:'ð',
+    massage:'ð¤²', fiber:'ð¥¦',
+  };
+  return map[reminderId] || 'ð';
+}
+
+function renderProgressRing(label, remainingSeconds, progress) {
+  const wrapEl = document.getElementById('nextReminderRing');
+  const radius = 56;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - progress);
+  wrapEl.innerHTML = `
+    <svg viewBox="0 0 130 130">
+      <circle cx="65" cy="65" r="${radius}" fill="none" stroke="#eee" stroke-width="8"/>
+      <circle cx="65" cy="65" r="${radius}" fill="none" stroke="#7BC67E" stroke-width="8"
+        stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+        stroke-linecap="round" transform="rotate(-90 65 65)"
+        style="transition: stroke-dashoffset 0.5s ease;"/>
+    </svg>
+    <div class="ring-text">
+      <div class="time">${formatDuration(remainingSeconds)}</div>
+      <div class="label">ä¸æ¬¡ã${label}ã</div>
+    </div>
+  `;
+}
+
+function markDone(reminderId) {
+  const r = state.activeReminders.find(x => x.id === reminderId);
+  if (!r) return;
+  r.lastDone = Date.now();
+  r.nextDue = Date.now() + r.interval * 1000;
+  state.statCounters[reminderId] = (state.statCounters[reminderId] || 0) + 1;
+
+  // Auto-log temperature if this is a temp reminder
+  if (reminderId === 'temp') {
+    const lastTemp = state.temperatureLog.length > 0 ? state.temperatureLog[state.temperatureLog.length-1].value : '';
+    const val = prompt('è¯·è¾å¥å®å®å½åä½æ¸©ï¼âï¼ï¼', lastTemp);
+    if (val && !isNaN(parseFloat(val))) {
+      state.temperatureLog.push({ time: Date.now(), value: parseFloat(val) });
+    }
+  }
+
+  saveState();
+  updateCaringDisplay();
+  playBeep(600, 0.15, 'triangle');
+  showToast('å·²æ è®°å®æï¼');
+}
+
+function snooze(reminderId) {
+  const r = state.activeReminders.find(x => x.id === reminderId);
+  if (!r) return;
+  r.nextDue = r.nextDue + 5 * 60 * 1000;
+  saveState();
+  updateCaringDisplay();
+  showToast('å·²æ¨è¿5åé');
+}
+
+// Check for overdue reminders and alert
+function checkAlerts() {
+  if (!state.activeDisease) return;
+  const now = Date.now();
+  state.activeReminders.forEach(r => {
+    if (r.nextDue <= now && r.nextDue > now - 5000) { // just became overdue
+      playAlertSound();
+    }
+  });
+}
+setInterval(checkAlerts, 3000);
+
+// ==================== ä½æ¸©è®°å½ ====================
+function recordTemp() {
+  const input = document.getElementById('tempInput');
+  const val = parseFloat(input.value);
+  if (isNaN(val) || val < 35 || val > 42) { showToast('è¯·è¾å¥ææçä½æ¸©å¼ï¼35-42âï¼'); return; }
+  state.temperatureLog.push({ time: Date.now(), value: val });
+  input.value = '';
+  saveState();
+  renderTempTable();
+  showToast('ä½æ¸©å·²è®°å½ï¼' + val + 'â');
+}
+
+function renderTempTable() {
+  const tableEl = document.getElementById('tempTable');
+  const log = state.temperatureLog;
+  if (log.length === 0) {
+    tableEl.innerHTML = '<tr><td colspan="3" style="padding:30px;color:#888;">ææ ä½æ¸©è®°å½</td></tr>';
+    return;
+  }
+  const sorted = [...log].reverse();
+  tableEl.innerHTML = `
+    <thead><tr><th>æ¶é´</th><th>ä½æ¸©ï¼âï¼</th><th>ç¶æ</th></tr></thead>
+    <tbody>${sorted.map(t => {
+      const d = new Date(t.time);
+      const timeStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      const cls = t.value >= 38 ? 'temp-high' : (t.value >= 37.3 ? 'temp-high' : '');
+      const status = t.value >= 39 ? 'é«ç­' : (t.value >= 38 ? 'åç­' : (t.value >= 37.3 ? 'ä½ç­' : 'æ­£å¸¸'));
+      return `<tr><td>${timeStr}</td><td class="${cls}">${t.value}</td><td>${status}</td></tr>`;
+    }).join('')}</tbody>
+  `;
+}
+
+// ==================== çæ¤è®°å½ ====================
+function renderRecords() {
+  const el = document.getElementById('recordsList');
+  if (state.records.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">ð</div><p>ææ çæ¤è®°å½</p></div>';
+    return;
+  }
+  el.innerHTML = state.records.map((rec, idx) => {
+    const startDate = new Date(rec.startTime);
+    const dateStr = `${startDate.getFullYear()}-${String(startDate.getMonth()+1).padStart(2,'0')}-${String(startDate.getDate()).padStart(2,'0')}`;
+    const timeStr = `${String(startDate.getHours()).padStart(2,'0')}:${String(startDate.getMinutes()).padStart(2,'0')}`;
+    const durationStr = formatDuration(rec.duration);
+    const stats = rec.stats || {};
+    const parts = [];
+    if (stats.water) parts.push(`åæ°´ ${stats.water} æ¬¡`);
+    if (stats.toilet) parts.push(`å¦å ${stats.toilet} æ¬¡`);
+    if (stats.temp) parts.push(`ä½æ¸© ${stats.temp} æ¬¡`);
+    Object.keys(stats).forEach(k => {
+      if (!['water','toilet','temp'].includes(k) && stats[k]) {
+        const r = DISEASES.flatMap(d=>d.reminders).find(r=>r.id===k);
+        if (r) parts.push(`${r.label} ${stats[k]} æ¬¡`);
+      }
+    });
+    return `
+      <div class="record-item">
+        <div class="rec-header">
+          <span class="rec-disease">${rec.disease.icon} ${rec.disease.name}</span>
+          <span class="rec-date">${dateStr} ${timeStr}</span>
+        </div>
+        <div class="rec-duration">çæ¤æ¶é¿ï¼${durationStr}</div>
+        <div class="rec-stats">${parts.join(' | ')}</div>
+        <div style="margin-top:8px;">
+          <button class="btn btn-outline btn-small" onclick="deleteRecord(${idx})">å é¤</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function deleteRecord(idx) {
+  if (!confirm('ç¡®å®å é¤è¿æ¡è®°å½åï¼')) return;
+  state.records.splice(idx, 1);
+  saveState();
+  renderRecords();
+  showToast('è®°å½å·²å é¤');
+}
+
+// ==================== åå§å ====================
+function init() {
+  loadState();
+  loadProfileForm();
+  renderDiseaseCards();
+  renderRecords();
+  renderTempTable();
+  // If there's active caring, switch to caring tab
+  if (state.activeDisease) {
+    switchTab('caring');
+  }
+  // Periodic check for alerts
+  setInterval(checkAlerts, 3000);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+// Keep caring display updated
+setInterval(() => {
+  if (state.activeDisease && document.getElementById('page-caring').classList.contains('active')) {
+    updateCaringDisplay();
+  }
+}, 1000);
+</script>
+</body>
+</html>
