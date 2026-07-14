@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#FFB6C1">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48Y2lyY2xlIGN4PSI5NiIgY3k9Ijk2IiByPSI5MCIgZmlsbD0iI0ZGQjZDMSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSI4MCI+8J+UiTwvdGV4dD48L3N2Zz4=">
 <title>小树苗看护</title>
 <style>
 :root {
@@ -367,8 +370,77 @@ const DISEASES = [
   },
 ];
 
-// ==================== 全局状态 ====================
+// ==================== 本地化存储（IndexedDB + localStorage 兜底） ====================
+// 优先 IndexedDB（容量大 / 异步 / 事务），localStorage 做兜底兼迁移桥
 const STORAGE_KEY = 'treelittle_care_data';
+const DB_NAME = 'xiaoshumiao-db';
+const DB_STORE = 'kv';
+let _dbPromise = null;
+function openDB() {
+  if (_dbPromise) return _dbPromise;
+  _dbPromise = new Promise((resolve, reject) => {
+    if (!('indexedDB' in window)) return resolve(null);
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(DB_STORE);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => resolve(null); // 失败时降级 localStorage
+  });
+  return _dbPromise;
+}
+async function idbGet(key) {
+  const db = await openDB(); if (!db) return null;
+  return new Promise(res => {
+    const tx = db.transaction(DB_STORE, 'readonly');
+    const r = tx.objectStore(DB_STORE).get(key);
+    r.onsuccess = () => res(r.result ?? null);
+    r.onerror = () => res(null);
+  });
+}
+async function idbSet(key, val) {
+  const db = await openDB(); if (!db) return;
+  return new Promise(res => {
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    tx.objectStore(DB_STORE).put(val, key);
+    tx.oncomplete = () => res();
+    tx.onerror = () => res();
+  });
+}
+
+// ==================== 系统通知 + Service Worker ====================
+let swReg = null;
+let notifPermission = 'default';
+async function initNotifications() {
+  if (!('Notification' in window)) return;
+  notifPermission = Notification.permission;
+  if (notifPermission === 'default') {
+    try { notifPermission = await Notification.requestPermission(); } catch(e) {}
+  }
+  if ('serviceWorker' in navigator) {
+    try {
+      swReg = await navigator.serviceWorker.register('./sw.js');
+      await navigator.serviceWorker.ready;
+    } catch(e) { console.warn('SW 注册失败', e); }
+  }
+}
+function notifyReminder(label, reminderId) {
+  notifySystem('小树苗看护 · 该' + label + '啦', '宝宝需要' + label + '，点击查看详情', reminderId || ('n_' + Date.now()));
+}
+function notifySystem(title, body, id) {
+  // 优先用 SW 触发（即使页面切到后台也能响）；失败回退到页面级 Notification
+  if (swReg && swReg.active && notifPermission === 'granted') {
+    swReg.active.postMessage({
+      type: 'SCHEDULE',
+      payload: { id: id || ('n_' + Date.now()), title, body, fireAt: Date.now() + 50 }
+    });
+  } else if (notifPermission === 'granted') {
+    try { new Notification(title, { body, tag: id }); } catch(e) {}
+  }
+}
+// 启动即注册（页面加载完异步触发，不阻塞首屏）
+if (document.readyState === 'complete') initNotifications();
+else window.addEventListener('load', initNotifications);
+
+// ==================== 全局状态 ====================
 let state = {
   profile: { name:'', age:'', weight:'' },
   activeDisease: null,
@@ -380,21 +452,24 @@ let state = {
   temperatureLog: [],
 };
 
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
+async function loadState() {
+  let raw = null;
+  try { raw = await idbGet(STORAGE_KEY); } catch(e) {}
+  if (!raw) { try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {} }
+  if (raw) {
+    try {
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
       state = { ...state, ...parsed };
       if (!state.statCounters) state.statCounters = {};
       if (!state.temperatureLog) state.temperatureLog = [];
-    }
-  } catch(e) { console.warn('加载数据失败', e); }
+      // 迁移到 IDB 一次后即丢弃 localStorage
+      idbSet(STORAGE_KEY, state);
+    } catch(e) { console.warn('加载数据失败', e); }
+  }
 }
 function saveState() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch(e) { console.warn('保存数据失败', e); }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+  idbSet(STORAGE_KEY, state);
 }
 
 // ==================== 提示音 ====================
@@ -693,13 +768,18 @@ function snooze(reminderId) {
 }
 
 // Check for overdue reminders and alert
+const _alertedReminders = new Set();
 function checkAlerts() {
   if (!state.activeDisease) return;
   const now = Date.now();
   state.activeReminders.forEach(r => {
-    if (r.nextDue <= now && r.nextDue > now - 5000) { // just became overdue
+    if (r.nextDue <= now && !_alertedReminders.has(r.id)) {
+      _alertedReminders.add(r.id);
       playAlertSound();
+      notifyReminder(r.label || r.id, r.id);
     }
+    // 已完成的提醒 30 分钟后移出集合，下次可重新触发
+    if (r.nextDue <= now - 1800000) _alertedReminders.delete(r.id);
   });
 }
 setInterval(checkAlerts, 3000);
@@ -784,8 +864,8 @@ function deleteRecord(idx) {
 }
 
 // ==================== 初始化 ====================
-function init() {
-  loadState();
+async function init() {
+  await loadState();
   loadProfileForm();
   renderDiseaseCards();
   renderRecords();
