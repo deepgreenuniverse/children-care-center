@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>å°æ èçæ¤</title>
+<title>小树苗看护</title>
 <style>
 :root {
   --pink: #FFB6C1;
@@ -199,76 +199,76 @@ body {
 <body>
 <div class="app">
   <div class="header">
-    å°æ èçæ¤
-    <div class="subtitle">å¿ç«¥ç¾ççæ¤æºè½æé</div>
+    小树苗看护
+    <div class="subtitle">儿童疾病看护智能提醒</div>
   </div>
   <div class="tabs">
-    <div class="tab active" data-tab="profile">å®å®æ¡£æ¡</div>
-    <div class="tab" data-tab="disease">éæ©ç¾ç</div>
-    <div class="tab" data-tab="caring">çæ¤ä¸­</div>
-    <div class="tab" data-tab="temp">ä½æ¸©è®°å½</div>
-    <div class="tab" data-tab="records">çæ¤è®°å½</div>
+    <div class="tab active" data-tab="profile">宝宝档案</div>
+    <div class="tab" data-tab="disease">选择疾病</div>
+    <div class="tab" data-tab="caring">看护中</div>
+    <div class="tab" data-tab="temp">体温记录</div>
+    <div class="tab" data-tab="records">看护记录</div>
   </div>
   <div class="content">
-    <!-- å¿ç«¥æ¡£æ¡ -->
+    <!-- 儿童档案 -->
     <div class="page active" id="page-profile">
       <div class="card">
-        <div class="card-title">å®å®æ¡£æ¡</div>
-        <div class="card-subtitle">å®åå®å®ä¿¡æ¯ï¼è·åæ´ç²¾åççæ¤æé</div>
+        <div class="card-title">宝宝档案</div>
+        <div class="card-subtitle">完善宝宝信息，获取更精准的看护提醒</div>
         <div class="form-group">
-          <label>å®å®å§å/æµç§°</label>
-          <input type="text" id="childName" placeholder="è¯·è¾å¥å®å®å§å" maxlength="20">
+          <label>宝宝姓名/昵称</label>
+          <input type="text" id="childName" placeholder="请输入宝宝姓名" maxlength="20">
         </div>
         <div class="form-group">
-          <label>å¹´é¾ï¼å²ï¼</label>
-          <input type="number" id="childAge" placeholder="å¦ 3" min="0" max="12" step="0.5">
+          <label>年龄（岁）</label>
+          <input type="number" id="childAge" placeholder="如 3" min="0" max="12" step="0.5">
         </div>
         <div class="form-group">
-          <label>ä½éï¼kgï¼</label>
-          <input type="number" id="childWeight" placeholder="å¦ 15" min="1" max="100" step="0.1">
+          <label>体重（kg）</label>
+          <input type="number" id="childWeight" placeholder="如 15" min="1" max="100" step="0.1">
         </div>
-        <button class="btn btn-primary" onclick="saveProfile()">ä¿å­æ¡£æ¡</button>
+        <button class="btn btn-primary" onclick="saveProfile()">保存档案</button>
       </div>
     </div>
 
-    <!-- ç¾çéæ© -->
+    <!-- 疾病选择 -->
     <div class="page" id="page-disease">
       <div class="card">
-        <div class="card-title">éæ©ç¾ç</div>
-        <div class="card-subtitle">éæ©å®å®å½åçç¶ï¼ç³»ç»å°èªå¨å è½½å¯¹åºççæ¤æéæ¹æ¡</div>
+        <div class="card-title">选择疾病</div>
+        <div class="card-subtitle">选择宝宝当前症状，系统将自动加载对应的看护提醒方案</div>
         <div class="disease-grid" id="diseaseGrid"></div>
       </div>
     </div>
 
-    <!-- çæ¤ä¸­ -->
+    <!-- 看护中 -->
     <div class="page" id="page-caring">
       <div id="caringNotStarted" class="empty-state">
-        <div class="empty-icon">ð±</div>
-        <p>å°æªå¼å§çæ¤</p>
-        <p style="font-size:13px;margin-top:4px;">è¯·åå¨ãéæ©ç¾çãé¡µé¢éæ©ç¾çå¼å§çæ¤</p>
-        <button class="btn btn-primary" style="margin-top:16px;width:auto;" onclick="switchTab('disease')">å»éæ©ç¾ç</button>
+        <div class="empty-icon">🌱</div>
+        <p>尚未开始看护</p>
+        <p style="font-size:13px;margin-top:4px;">请先在「选择疾病」页面选择疾病开始看护</p>
+        <button class="btn btn-primary" style="margin-top:16px;width:auto;" onclick="switchTab('disease')">去选择疾病</button>
       </div>
       <div id="caringActive" style="display:none;">
         <div class="caring-header">
           <div class="disease-badge" id="caringDiseaseName"></div>
-          <div class="duration">å·²çæ¤ <span id="caringDuration">00:00:00</span></div>
+          <div class="duration">已看护 <span id="caringDuration">00:00:00</span></div>
         </div>
         <div class="progress-ring-wrap" id="nextReminderRing"></div>
         <div class="reminder-list" id="reminderList"></div>
         <div class="stats-row" id="todayStats"></div>
         <div style="text-align:center;margin-top:16px;">
-          <button class="btn btn-danger btn-small" onclick="endCaring()">ç»ææ¬æ¬¡çæ¤</button>
+          <button class="btn btn-danger btn-small" onclick="endCaring()">结束本次看护</button>
         </div>
       </div>
     </div>
 
-    <!-- ä½æ¸©è®°å½ -->
+    <!-- 体温记录 -->
     <div class="page" id="page-temp">
       <div class="card">
-        <div class="card-title">ä½æ¸©è®°å½</div>
+        <div class="card-title">体温记录</div>
         <div class="temp-input-row">
-          <input type="number" id="tempInput" placeholder="è¾å¥ä½æ¸©ï¼âï¼" step="0.1" min="35" max="42">
-          <button class="btn btn-primary btn-small" onclick="recordTemp()" style="width:auto;">è®°å½</button>
+          <input type="number" id="tempInput" placeholder="输入体温（℃）" step="0.1" min="35" max="42">
+          <button class="btn btn-primary btn-small" onclick="recordTemp()" style="width:auto;">记录</button>
         </div>
       </div>
       <div class="card" id="tempTableCard">
@@ -276,10 +276,10 @@ body {
       </div>
     </div>
 
-    <!-- çæ¤è®°å½ -->
+    <!-- 看护记录 -->
     <div class="page" id="page-records">
       <div class="card">
-        <div class="card-title">çæ¤è®°å½</div>
+        <div class="card-title">看护记录</div>
         <div id="recordsList"></div>
       </div>
     </div>
@@ -287,87 +287,87 @@ body {
 </div>
 
 <script>
-// ==================== ç¾çåº ====================
+// ==================== 疾病库 ====================
 const DISEASES = [
   {
-    id:'hfmd', name:'æè¶³å£ç', icon:'ð¦ ',
-    desc:'ç±è éçæ¯å¼èµ·ï¼å¸¸è§äº5å²ä»¥ä¸å¿ç«¥ï¼è¡¨ç°ä¸ºåç­ãå£èç±ç¹ãæè¶³ç®ç¹ã',
+    id:'hfmd', name:'手足口病', icon:'🦠',
+    desc:'由肠道病毒引起，常见于5岁以下儿童，表现为发热、口腔疱疹、手足皮疹。',
     reminders:[
-      { id:'water', label:'åæ°´', interval:30*60 },
-      { id:'toilet', label:'å¦å', interval:2*3600 },
-      { id:'temp', label:'éä½æ¸©', interval:4*3600 },
-      { id:'mouth', label:'å£èæ¤ç', interval:3*3600 },
-      { id:'rash', label:'ç®ç¹è§å¯', interval:12*3600 },
+      { id:'water', label:'喝水', interval:30*60 },
+      { id:'toilet', label:'如厕', interval:2*3600 },
+      { id:'temp', label:'量体温', interval:4*3600 },
+      { id:'mouth', label:'口腔护理', interval:3*3600 },
+      { id:'rash', label:'皮疹观察', interval:12*3600 },
     ]
   },
   {
-    id:'flu', name:'æµæ/æå', icon:'ð¤§',
-    desc:'ç±æµæçæ¯å¼èµ·ï¼çç¶åæ¬é«ç­ãå³å½ãå½çãèèé¸çç­ã',
+    id:'flu', name:'流感/感冒', icon:'🤧',
+    desc:'由流感病毒引起，症状包括高热、咳嗽、咽痛、肌肉酸痛等。',
     reminders:[
-      { id:'water', label:'åæ°´', interval:1*3600 },
-      { id:'toilet', label:'å¦å', interval:3*3600 },
-      { id:'temp', label:'éä½æ¸©', interval:4*3600 },
-      { id:'med', label:'åè¯æé', interval:8*3600 },
-      { id:'rest', label:'ä¼æ¯è§å¯', interval:2*3600 },
+      { id:'water', label:'喝水', interval:1*3600 },
+      { id:'toilet', label:'如厕', interval:3*3600 },
+      { id:'temp', label:'量体温', interval:4*3600 },
+      { id:'med', label:'吃药提醒', interval:8*3600 },
+      { id:'rest', label:'休息观察', interval:2*3600 },
     ]
   },
   {
-    id:'diarrhea', name:'è¹æ³»', icon:'ð§',
-    desc:'æä¾¿æ¬¡æ°å¢å¤ãå¤§ä¾¿ç¨èï¼ééç¹é²è±æ°´ï¼æ³¨æé¥®é£å«çã',
+    id:'diarrhea', name:'腹泻', icon:'💧',
+    desc:'排便次数增多、大便稀薄，需重点防脱水，注意饮食卫生。',
     reminders:[
-      { id:'water', label:'åæ°´ï¼é²è±æ°´ï¼', interval:20*60 },
-      { id:'toilet', label:'å¦åè®°å½', interval:2*3600 },
-      { id:'temp', label:'éä½æ¸©', interval:6*3600 },
-      { id:'ors', label:'è¡¥æ¶²ç', interval:4*3600 },
-      { id:'diet', label:'é¥®é£ç¦å¿æé', interval:6*3600 },
+      { id:'water', label:'喝水（防脱水）', interval:20*60 },
+      { id:'toilet', label:'如厕记录', interval:2*3600 },
+      { id:'temp', label:'量体温', interval:6*3600 },
+      { id:'ors', label:'补液盐', interval:4*3600 },
+      { id:'diet', label:'饮食禁忌提醒', interval:6*3600 },
     ]
   },
   {
-    id:'herpangina', name:'å½å³¡ç', icon:'ð£',
-    desc:'ç±ç¹æ§å½å³¡çï¼è¡¨ç°ä¸ºçªåé«ç­ãå½çãå½é¨ç±ç¹ï¼è¿é£å°é¾ã',
+    id:'herpangina', name:'咽峡炎', icon:'😣',
+    desc:'疱疹性咽峡炎，表现为突发高热、咽痛、咽部疱疹，进食困难。',
     reminders:[
-      { id:'water', label:'åæ°´', interval:30*60 },
-      { id:'toilet', label:'å¦å', interval:2*3600 },
-      { id:'temp', label:'éä½æ¸©', interval:4*3600 },
-      { id:'gargle', label:'æ¼±å£', interval:2*3600 },
-      { id:'coldfood', label:'å·æµè´¨é¥®é£', interval:4*3600 },
+      { id:'water', label:'喝水', interval:30*60 },
+      { id:'toilet', label:'如厕', interval:2*3600 },
+      { id:'temp', label:'量体温', interval:4*3600 },
+      { id:'gargle', label:'漱口', interval:2*3600 },
+      { id:'coldfood', label:'冷流质饮食', interval:4*3600 },
     ]
   },
   {
-    id:'exanthem', name:'å¹¼å¿æ¥ç¹', icon:'ð¸',
-    desc:'å¸¸è§äº6ä¸ªæ~2å²å©´å¹¼å¿ï¼é«ç­3~5å¤©åç­éç¹åºã',
+    id:'exanthem', name:'幼儿急疹', icon:'🌸',
+    desc:'常见于6个月~2岁婴幼儿，高热3~5天后热退疹出。',
     reminders:[
-      { id:'water', label:'åæ°´', interval:1*3600 },
-      { id:'toilet', label:'å¦å', interval:3*3600 },
-      { id:'temp', label:'éä½æ¸©', interval:3*3600 },
-      { id:'fevermed', label:'éç§è¯é´é', interval:6*3600 },
-      { id:'rash', label:'ç®ç¹è§å¯', interval:4*3600 },
+      { id:'water', label:'喝水', interval:1*3600 },
+      { id:'toilet', label:'如厕', interval:3*3600 },
+      { id:'temp', label:'量体温', interval:3*3600 },
+      { id:'fevermed', label:'退烧药间隔', interval:6*3600 },
+      { id:'rash', label:'皮疹观察', interval:4*3600 },
     ]
   },
   {
-    id:'pneumonia', name:'èºç', icon:'ð«',
-    desc:'èºé¨æææ§ç¾çï¼è¡¨ç°ä¸ºåç­ãå³å½ãæ°ä¿ï¼éè¦å¯åè§å¯ã',
+    id:'pneumonia', name:'肺炎', icon:'🫁',
+    desc:'肺部感染性疾病，表现为发热、咳嗽、气促，需要密切观察。',
     reminders:[
-      { id:'water', label:'åæ°´', interval:40*60 },
-      { id:'toilet', label:'å¦å', interval:2*3600 },
-      { id:'temp', label:'éä½æ¸©', interval:3*3600 },
-      { id:'nebulize', label:'é¾å', interval:8*3600 },
-      { id:'patback', label:'æèæç°', interval:4*3600 },
+      { id:'water', label:'喝水', interval:40*60 },
+      { id:'toilet', label:'如厕', interval:2*3600 },
+      { id:'temp', label:'量体温', interval:3*3600 },
+      { id:'nebulize', label:'雾化', interval:8*3600 },
+      { id:'patback', label:'拍背排痰', interval:4*3600 },
     ]
   },
   {
-    id:'constipation', name:'ä¾¿ç§', icon:'ð',
-    desc:'æä¾¿å°é¾ãå¤§ä¾¿å¹²ç»ï¼è°æ´é¥®é£ç»æç»åè¹é¨ææ©å¸®å©æä¾¿ã',
+    id:'constipation', name:'便秘', icon:'😟',
+    desc:'排便困难、大便干结，调整饮食结构结合腹部按摩帮助排便。',
     reminders:[
-      { id:'water', label:'åæ°´', interval:1*3600 },
-      { id:'toilet', label:'å°è¯åä¾¿', interval:2*3600 },
-      { id:'massage', label:'è¹é¨ææ©', interval:4*3600 },
-      { id:'fiber', label:'é«çº¤ç»´é¥®é£', interval:6*3600 },
+      { id:'water', label:'喝水', interval:1*3600 },
+      { id:'toilet', label:'尝试坐便', interval:2*3600 },
+      { id:'massage', label:'腹部按摩', interval:4*3600 },
+      { id:'fiber', label:'高纤维饮食', interval:6*3600 },
     ]
   },
 ];
 
-// ==================== å¨å±ç¶æ ====================
+// ==================== 全局状态 ====================
 const STORAGE_KEY = 'treelittle_care_data';
 let state = {
   profile: { name:'', age:'', weight:'' },
@@ -389,15 +389,15 @@ function loadState() {
       if (!state.statCounters) state.statCounters = {};
       if (!state.temperatureLog) state.temperatureLog = [];
     }
-  } catch(e) { console.warn('å è½½æ°æ®å¤±è´¥', e); }
+  } catch(e) { console.warn('加载数据失败', e); }
 }
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch(e) { console.warn('ä¿å­æ°æ®å¤±è´¥', e); }
+  } catch(e) { console.warn('保存数据失败', e); }
 }
 
-// ==================== æç¤ºé³ ====================
+// ==================== 提示音 ====================
 function playBeep(freq, dur, type) {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -418,7 +418,7 @@ function playAlertSound() {
   setTimeout(() => playBeep(1320, 0.3, 'square'), 450);
 }
 
-// ==================== UI å·¥å· ====================
+// ==================== UI 工具 ====================
 function showToast(msg, duration) {
   const el = document.createElement('div');
   el.className = 'toast'; el.textContent = msg;
@@ -434,12 +434,12 @@ function formatDuration(seconds) {
 }
 
 function formatInterval(seconds) {
-  if (seconds < 60) return seconds + 'ç§';
-  if (seconds < 3600) return Math.round(seconds/60) + 'åé';
-  return Math.round(seconds/3600) + 'å°æ¶';
+  if (seconds < 60) return seconds + '秒';
+  if (seconds < 3600) return Math.round(seconds/60) + '分钟';
+  return Math.round(seconds/3600) + '小时';
 }
 
-// ==================== Tab åæ¢ ====================
+// ==================== Tab 切换 ====================
 function switchTab(tabName) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -457,15 +457,15 @@ document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => switchTab(tab.dataset.tab));
 });
 
-// ==================== å¿ç«¥æ¡£æ¡ ====================
+// ==================== 儿童档案 ====================
 function saveProfile() {
   const name = document.getElementById('childName').value.trim();
   const age = document.getElementById('childAge').value;
   const weight = document.getElementById('childWeight').value;
-  if (!name) { showToast('è¯·è¾å¥å®å®å§å'); return; }
+  if (!name) { showToast('请输入宝宝姓名'); return; }
   state.profile = { name, age, weight };
   saveState();
-  showToast('æ¡£æ¡ä¿å­æåï¼');
+  showToast('档案保存成功！');
 }
 
 function loadProfileForm() {
@@ -474,7 +474,7 @@ function loadProfileForm() {
   document.getElementById('childWeight').value = state.profile.weight || '';
 }
 
-// ==================== ç¾çå¡ç ====================
+// ==================== 疾病卡片 ====================
 function renderDiseaseCards() {
   const grid = document.getElementById('diseaseGrid');
   if (!grid) return;
@@ -487,7 +487,7 @@ function renderDiseaseCards() {
         <div class="disease-name">${d.name}</div>
         <div class="disease-desc">${d.desc}</div>
         <div class="disease-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-        ${isActive ? '<div style="margin-top:6px;font-size:13px;color:var(--green);font-weight:700;">å½åçæ¤ä¸­</div>' : ''}
+        ${isActive ? '<div style="margin-top:6px;font-size:13px;color:var(--green);font-weight:700;">当前看护中</div>' : ''}
       </div>
     `;
   }).join('');
@@ -503,7 +503,7 @@ function selectDisease(diseaseId) {
   }
   // If caring for another disease, ask
   if (state.activeDisease && state.activeDisease.id !== diseaseId) {
-    if (!confirm(`å½åæ­£å¨çæ¤ã${state.activeDisease.name}ãï¼åæ¢ç¾çå°ç»æå½åçæ¤å¹¶ä¿å­è®°å½ï¼ç¡®å®åï¼`)) return;
+    if (!confirm(`当前正在看护「${state.activeDisease.name}」，切换疾病将结束当前看护并保存记录，确定吗？`)) return;
     endCaringSilent();
   }
   startCaring(disease);
@@ -523,15 +523,15 @@ function startCaring(disease) {
   saveState();
   renderDiseaseCards();
   switchTab('caring');
-  showToast(`å·²å¼å§ã${disease.name}ãçæ¤`);
+  showToast(`已开始「${disease.name}」看护`);
 }
 
 function endCaring() {
   if (!state.activeDisease) return;
-  if (!confirm('ç¡®å®ç»ææ¬æ¬¡çæ¤åï¼ç»æåå°çææ¬æ¬¡çæ¤è®°å½ã')) return;
+  if (!confirm('确定结束本次看护吗？结束后将生成本次看护记录。')) return;
   endCaringSilent();
   switchTab('records');
-  showToast('å·²ç»æçæ¤ï¼è®°å½å·²ä¿å­');
+  showToast('已结束看护，记录已保存');
 }
 
 function endCaringSilent() {
@@ -553,7 +553,7 @@ function endCaringSilent() {
   saveState();
 }
 
-// ==================== çæ¤ä¸­é¡µé¢ ====================
+// ==================== 看护中页面 ====================
 let caringTimer = null;
 let ringAnimFrame = null;
 
@@ -607,13 +607,13 @@ function updateCaringDisplay() {
           <div class="ri-icon">${getReminderIcon(r.id)}</div>
           <div>
             <div class="ri-name">${r.label}</div>
-            <div class="ri-time">${isUrgent ? 'â ï¸ ç°å¨ï¼' : 'è¿å© ' + formatDuration(rem)}</div>
+            <div class="ri-time">${isUrgent ? '⚠️ 现在！' : '还剩 ' + formatDuration(rem)}</div>
           </div>
         </div>
-        <div class="ri-count">å·²å®æ x${count}</div>
+        <div class="ri-count">已完成 x${count}</div>
         <div class="ri-actions">
-          <button class="btn btn-primary btn-small" onclick="markDone('${r.id}')">å·²å®æ</button>
-          <button class="btn btn-warning btn-small" onclick="snooze('${r.id}')">æ¨è¿5å</button>
+          <button class="btn btn-primary btn-small" onclick="markDone('${r.id}')">已完成</button>
+          <button class="btn btn-warning btn-small" onclick="snooze('${r.id}')">推迟5分</button>
         </div>
       </div>
     `;
@@ -625,20 +625,20 @@ function updateCaringDisplay() {
   const tCount = state.statCounters['toilet'] || 0;
   const tpCount = state.statCounters['temp'] || 0;
   statsEl.innerHTML = `
-    <div class="stat-card"><div class="stat-num">${wCount}</div><div class="stat-label">åæ°´</div></div>
-    <div class="stat-card"><div class="stat-num">${tCount}</div><div class="stat-label">å¦å</div></div>
-    <div class="stat-card"><div class="stat-num">${tpCount}</div><div class="stat-label">ä½æ¸©</div></div>
+    <div class="stat-card"><div class="stat-num">${wCount}</div><div class="stat-label">喝水</div></div>
+    <div class="stat-card"><div class="stat-num">${tCount}</div><div class="stat-label">如厕</div></div>
+    <div class="stat-card"><div class="stat-num">${tpCount}</div><div class="stat-label">体温</div></div>
   `;
 }
 
 function getReminderIcon(reminderId) {
   const map = {
-    water:'ð§', toilet:'ð½', temp:'ð¡ï¸', mouth:'ð¦·', rash:'ð',
-    med:'ð', rest:'ð´', ors:'ð§', diet:'ð', gargle:'ð«§',
-    coldfood:'ð¦', fevermed:'ð', nebulize:'ð¨', patback:'ð',
-    massage:'ð¤²', fiber:'ð¥¦',
+    water:'💧', toilet:'🚽', temp:'🌡️', mouth:'🦷', rash:'🔍',
+    med:'💊', rest:'😴', ors:'🧂', diet:'🍎', gargle:'🫧',
+    coldfood:'🍦', fevermed:'💊', nebulize:'💨', patback:'👋',
+    massage:'🤲', fiber:'🥦',
   };
-  return map[reminderId] || 'ð';
+  return map[reminderId] || '🔔';
 }
 
 function renderProgressRing(label, remainingSeconds, progress) {
@@ -656,7 +656,7 @@ function renderProgressRing(label, remainingSeconds, progress) {
     </svg>
     <div class="ring-text">
       <div class="time">${formatDuration(remainingSeconds)}</div>
-      <div class="label">ä¸æ¬¡ã${label}ã</div>
+      <div class="label">下次「${label}」</div>
     </div>
   `;
 }
@@ -671,7 +671,7 @@ function markDone(reminderId) {
   // Auto-log temperature if this is a temp reminder
   if (reminderId === 'temp') {
     const lastTemp = state.temperatureLog.length > 0 ? state.temperatureLog[state.temperatureLog.length-1].value : '';
-    const val = prompt('è¯·è¾å¥å®å®å½åä½æ¸©ï¼âï¼ï¼', lastTemp);
+    const val = prompt('请输入宝宝当前体温（℃）：', lastTemp);
     if (val && !isNaN(parseFloat(val))) {
       state.temperatureLog.push({ time: Date.now(), value: parseFloat(val) });
     }
@@ -680,7 +680,7 @@ function markDone(reminderId) {
   saveState();
   updateCaringDisplay();
   playBeep(600, 0.15, 'triangle');
-  showToast('å·²æ è®°å®æï¼');
+  showToast('已标记完成！');
 }
 
 function snooze(reminderId) {
@@ -689,7 +689,7 @@ function snooze(reminderId) {
   r.nextDue = r.nextDue + 5 * 60 * 1000;
   saveState();
   updateCaringDisplay();
-  showToast('å·²æ¨è¿5åé');
+  showToast('已推迟5分钟');
 }
 
 // Check for overdue reminders and alert
@@ -704,43 +704,43 @@ function checkAlerts() {
 }
 setInterval(checkAlerts, 3000);
 
-// ==================== ä½æ¸©è®°å½ ====================
+// ==================== 体温记录 ====================
 function recordTemp() {
   const input = document.getElementById('tempInput');
   const val = parseFloat(input.value);
-  if (isNaN(val) || val < 35 || val > 42) { showToast('è¯·è¾å¥ææçä½æ¸©å¼ï¼35-42âï¼'); return; }
+  if (isNaN(val) || val < 35 || val > 42) { showToast('请输入有效的体温值（35-42℃）'); return; }
   state.temperatureLog.push({ time: Date.now(), value: val });
   input.value = '';
   saveState();
   renderTempTable();
-  showToast('ä½æ¸©å·²è®°å½ï¼' + val + 'â');
+  showToast('体温已记录：' + val + '℃');
 }
 
 function renderTempTable() {
   const tableEl = document.getElementById('tempTable');
   const log = state.temperatureLog;
   if (log.length === 0) {
-    tableEl.innerHTML = '<tr><td colspan="3" style="padding:30px;color:#888;">ææ ä½æ¸©è®°å½</td></tr>';
+    tableEl.innerHTML = '<tr><td colspan="3" style="padding:30px;color:#888;">暂无体温记录</td></tr>';
     return;
   }
   const sorted = [...log].reverse();
   tableEl.innerHTML = `
-    <thead><tr><th>æ¶é´</th><th>ä½æ¸©ï¼âï¼</th><th>ç¶æ</th></tr></thead>
+    <thead><tr><th>时间</th><th>体温（℃）</th><th>状态</th></tr></thead>
     <tbody>${sorted.map(t => {
       const d = new Date(t.time);
       const timeStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
       const cls = t.value >= 38 ? 'temp-high' : (t.value >= 37.3 ? 'temp-high' : '');
-      const status = t.value >= 39 ? 'é«ç­' : (t.value >= 38 ? 'åç­' : (t.value >= 37.3 ? 'ä½ç­' : 'æ­£å¸¸'));
+      const status = t.value >= 39 ? '高热' : (t.value >= 38 ? '发热' : (t.value >= 37.3 ? '低热' : '正常'));
       return `<tr><td>${timeStr}</td><td class="${cls}">${t.value}</td><td>${status}</td></tr>`;
     }).join('')}</tbody>
   `;
 }
 
-// ==================== çæ¤è®°å½ ====================
+// ==================== 看护记录 ====================
 function renderRecords() {
   const el = document.getElementById('recordsList');
   if (state.records.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">ð</div><p>ææ çæ¤è®°å½</p></div>';
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>暂无看护记录</p></div>';
     return;
   }
   el.innerHTML = state.records.map((rec, idx) => {
@@ -750,13 +750,13 @@ function renderRecords() {
     const durationStr = formatDuration(rec.duration);
     const stats = rec.stats || {};
     const parts = [];
-    if (stats.water) parts.push(`åæ°´ ${stats.water} æ¬¡`);
-    if (stats.toilet) parts.push(`å¦å ${stats.toilet} æ¬¡`);
-    if (stats.temp) parts.push(`ä½æ¸© ${stats.temp} æ¬¡`);
+    if (stats.water) parts.push(`喝水 ${stats.water} 次`);
+    if (stats.toilet) parts.push(`如厕 ${stats.toilet} 次`);
+    if (stats.temp) parts.push(`体温 ${stats.temp} 次`);
     Object.keys(stats).forEach(k => {
       if (!['water','toilet','temp'].includes(k) && stats[k]) {
         const r = DISEASES.flatMap(d=>d.reminders).find(r=>r.id===k);
-        if (r) parts.push(`${r.label} ${stats[k]} æ¬¡`);
+        if (r) parts.push(`${r.label} ${stats[k]} 次`);
       }
     });
     return `
@@ -765,10 +765,10 @@ function renderRecords() {
           <span class="rec-disease">${rec.disease.icon} ${rec.disease.name}</span>
           <span class="rec-date">${dateStr} ${timeStr}</span>
         </div>
-        <div class="rec-duration">çæ¤æ¶é¿ï¼${durationStr}</div>
+        <div class="rec-duration">看护时长：${durationStr}</div>
         <div class="rec-stats">${parts.join(' | ')}</div>
         <div style="margin-top:8px;">
-          <button class="btn btn-outline btn-small" onclick="deleteRecord(${idx})">å é¤</button>
+          <button class="btn btn-outline btn-small" onclick="deleteRecord(${idx})">删除</button>
         </div>
       </div>
     `;
@@ -776,14 +776,14 @@ function renderRecords() {
 }
 
 function deleteRecord(idx) {
-  if (!confirm('ç¡®å®å é¤è¿æ¡è®°å½åï¼')) return;
+  if (!confirm('确定删除这条记录吗？')) return;
   state.records.splice(idx, 1);
   saveState();
   renderRecords();
-  showToast('è®°å½å·²å é¤');
+  showToast('记录已删除');
 }
 
-// ==================== åå§å ====================
+// ==================== 初始化 ====================
 function init() {
   loadState();
   loadProfileForm();
